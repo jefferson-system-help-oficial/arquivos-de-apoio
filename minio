@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  minio:
+    image: quay.io/minio/minio
+    command: server /data --console-address ":9001"
+    networks:
+      - minha_rede
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    environment:
+      - MINIO_ROOT_USER= minioadmin # Novo usuário para o MinIO
+      - MINIO_ROOT_PASSWORD= minioadmin # Nova senha para o MinIO
+      - MINIO_BROWSER_REDIRECT_URL=https://SEU_DOMINIO_MINIO # ficara na porta 9001
+      - MINIO_SERVER_URL=https://SEU_DOMINIO_S3 # ficara na porta 9000
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+
+volumes:
+  minio_data:
+    external: true
+    name: minio_data
+
+networks:
+  minha_rede:
+    external: true
+    name: minha_rede
+  app_network:
+    external: true
+  npm_public:
+    external: true
